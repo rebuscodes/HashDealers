@@ -1,0 +1,88 @@
+# -*- coding: utf-8 -*-
+from pyDes import *
+from itertools import combinations_with_replacement
+import enchant
+
+def encrypt(key, words):
+    k = des(key, CBC, "\0\0\0\0\0\0\0\0", pad=None, padmode=PAD_PKCS5)
+    c = k.encrypt(words)
+    print "Encrypted: %r" % c
+
+def decrypt(key, words):
+
+    k = des(key, CBC, "\0\0\0\0\0\0\0\0", pad=None, padmode=PAD_PKCS5)
+    print "Decrypted: %r" % k.decrypt(words)
+
+def force(words):
+    alphabet="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+    alphabet=list(str(alphabet))
+    punct=list(str(",./\#;:@'[]{}()-_=+*&^%$£<>?~`¬|""! "))
+    key=list(str("aaaaaaaa"))
+    p=enchant.Dict("en_US")
+    winrar=False
+    for c in combinations_with_replacement(alphabet, 8):
+        key=c
+        key=(''.join(key))
+        k = des(key, CBC, "\0\0\0\0\0\0\0\0", pad=None, padmode=PAD_PKCS5)
+        d="%r"%k.decrypt(words)
+        d=eval(d)
+        l=list(str(d))
+        count=0
+        if winrar==True:
+            print "WINRAR!@!@!@"
+            break
+        check=""
+        done=False
+        p=enchant.Dict("en_US")
+
+        for i in range(0, len(l)):
+            for a in range(0,62):
+                if l[i]==alphabet[a]:
+                    count+=1
+                elif count>=5 and done == False:
+                    check=(''.join(l))
+                    checker=list(str(check))
+                    counter=0
+                    for q in range (0,len(checker)):
+                        if checker[q] in alphabet:
+                            counter+=1
+                            if counter >= len(checker):
+                                 print check
+                                 done=True
+                                 winrar=True
+                                 break
+                            else:
+                                continue
+                        elif checker[q] in punct:
+                            counter+=1
+                            if counter >= len(checker):
+                                 print check
+                                 done=True
+                                 winrar=True
+                                 break
+                            else:
+                                continue
+                        else:
+                            continue
+                else:
+                    continue
+
+def menu():
+
+    print "DES ciphers + Brute Force"
+    print "1. Encrypt\n2. Decrypt\n3. BruteForce"
+    opt=raw_input("Select Option: ")
+    words=raw_input("Enter string: ")
+    if opt=="1":
+        key=raw_input("Enter 8 byte key: ")
+        encrypt(key, words)
+    elif opt=="2":
+        words=eval(words)
+        key=raw_input("Enter 8 byte key: ")
+        decrypt(key, words)
+    elif opt=="3":
+        words=eval(words)
+        force(words)
+
+menu()
+
