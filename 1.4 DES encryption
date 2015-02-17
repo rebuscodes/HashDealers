@@ -1,0 +1,33 @@
+from pyDes import *
+
+def encrypt(key, words):
+    k = des(key, CBC, "\0\0\0\0\0\0\0\0", pad=None, padmode=PAD_PKCS5)
+    c = k.encrypt(words)
+    print "Encrypted: %r" % c
+
+def decrypt(key, words):
+
+    k = des(key, CBC, "\0\0\0\0\0\0\0\0", pad=None, padmode=PAD_PKCS5)
+    print "Decrypted: %r" % k.decrypt(words)
+
+def force(words):
+    print "Will brute force the key... eventually."
+
+def menu():
+    print "DES ciphers + Brute Force"
+    print "1. Encrypt\n2. Decrypt\n3. BruteForce"
+    opt=raw_input("Select Option:")
+    words=raw_input("Enter string: ")
+    if opt=="1":
+        key=raw_input("Enter 8 byte key: ")
+        encrypt(key, words)
+    elif opt=="2":
+        words=eval(words)
+        key=raw_input("Enter 8 byte key: ")
+        decrypt(key, words)
+    elif opt=="3":
+        words=eval(words)
+        force(words)
+
+menu()
+
