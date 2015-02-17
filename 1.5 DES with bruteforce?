@@ -1,26 +1,34 @@
 # -*- coding: utf-8 -*-
+
 from pyDes import *
 from itertools import combinations_with_replacement
 import enchant
 
 def encrypt(key, words):
+
+    #Encrypting messages
     k = des(key, CBC, "\0\0\0\0\0\0\0\0", pad=None, padmode=PAD_PKCS5)
     c = k.encrypt(words)
     print "Encrypted: %r" % c
 
 def decrypt(key, words):
 
+    #Decrypting messages
     k = des(key, CBC, "\0\0\0\0\0\0\0\0", pad=None, padmode=PAD_PKCS5)
     print "Decrypted: %r" % k.decrypt(words)
 
 def force(words):
-    alphabet="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
-    alphabet=list(str(alphabet))
-    punct=list(str(",./\#;:@'[]{}()-_=+*&^%$£<>?~`¬|""! "))
-    key=list(str("aaaaaaaa"))
-    p=enchant.Dict("en_US")
-    winrar=False
-    for c in combinations_with_replacement(alphabet, 8):
+
+    alphabet=list(str("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"))
+    numbers=list(str("1234567890"))
+    punct=list(str(",./\;:@'[]{}()=+*&%$£?`""! "))
+
+    #start itertools combination loop
+
+    for c in combinations_with_replacement(numbers, 8):
+
+        #Tons o' variables!
+
         key=c
         key=(''.join(key))
         k = des(key, CBC, "\0\0\0\0\0\0\0\0", pad=None, padmode=PAD_PKCS5)
@@ -28,12 +36,10 @@ def force(words):
         d=eval(d)
         l=list(str(d))
         count=0
-        if winrar==True:
-            print "WINRAR!@!@!@"
-            break
         check=""
         done=False
-        p=enchant.Dict("en_US")
+
+        #loops, inside loops, inside if statments (to decrypt stuff) 
 
         for i in range(0, len(l)):
             for a in range(0,62):
@@ -47,18 +53,16 @@ def force(words):
                         if checker[q] in alphabet:
                             counter+=1
                             if counter >= len(checker):
-                                 print check
+                                 print "Deciphered: "+check+"\t\tKey: "+key
                                  done=True
-                                 winrar=True
                                  break
                             else:
                                 continue
                         elif checker[q] in punct:
                             counter+=1
                             if counter >= len(checker):
-                                 print check
+                                 print "Deciphered: "+check+"\t\tKey: "+key
                                  done=True
-                                 winrar=True
                                  break
                             else:
                                 continue
@@ -74,15 +78,19 @@ def menu():
     opt=raw_input("Select Option: ")
     words=raw_input("Enter string: ")
     if opt=="1":
+        #start encrypting
         key=raw_input("Enter 8 byte key: ")
         encrypt(key, words)
     elif opt=="2":
+        #start decrypting
         words=eval(words)
         key=raw_input("Enter 8 byte key: ")
         decrypt(key, words)
     elif opt=="3":
+        #brute force
         words=eval(words)
         force(words)
 
 menu()
+
 
