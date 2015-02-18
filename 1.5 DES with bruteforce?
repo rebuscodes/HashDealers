@@ -2,7 +2,12 @@
 
 from pyDes import *
 from itertools import combinations_with_replacement
-import enchant
+import multiprocessing
+import time
+
+alphabet=list(str("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"))
+numbers=list(str("1234567890"))
+punct=list(str(",./\;:@'[]{}()=+*&%$£?`""! "))
 
 def encrypt(key, words):
 
@@ -17,19 +22,16 @@ def decrypt(key, words):
     k = des(key, CBC, "\0\0\0\0\0\0\0\0", pad=None, padmode=PAD_PKCS5)
     print "Decrypted: %r" % k.decrypt(words)
 
-def force(words):
-
-    alphabet=list(str("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"))
-    numbers=list(str("1234567890"))
-    punct=list(str(",./\;:@'[]{}()=+*&%$£?`""! "))
+def force(words, x):
 
     #start itertools combination loop
 
-    for c in combinations_with_replacement(numbers, 8):
+    for c in combinations_with_replacement(numbers, 7):
 
         #Tons o' variables!
 
-        key=c
+        key=list(c)
+        key.insert(0, x)
         key=(''.join(key))
         k = des(key, CBC, "\0\0\0\0\0\0\0\0", pad=None, padmode=PAD_PKCS5)
         d="%r"%k.decrypt(words)
@@ -71,6 +73,29 @@ def force(words):
                 else:
                     continue
 
+def multiP(words):
+
+    jobs=[]
+    t1 = time.time()
+
+    for a in range(0, 5):
+        x = numbers[a]
+        p=multiprocessing.Process(target=force, args=(words, x,))
+        jobs.append(p)
+        p.start()
+    p.join()
+
+    for b in range(5, 10):
+        x = numbers[b]
+        p=multiprocessing.Process(target=force, args=(words, x,))
+        jobs.append(p)
+        p.start()
+    p.join()
+
+    t2 = time.time()
+    times=t2-t1
+    print times
+
 def menu():
 
     print "DES ciphers + Brute Force"
@@ -89,8 +114,10 @@ def menu():
     elif opt=="3":
         #brute force
         words=eval(words)
-        force(words)
+        multiP(words)
 
 menu()
+
+
 
 
