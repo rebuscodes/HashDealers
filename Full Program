@@ -1,0 +1,338 @@
+# -*- coding: utf-8 -*-
+import os
+from pyDes import *
+from itertools import product
+import multiprocessing
+import time
+import enchant
+
+alphabet = list(str("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"))
+numbers=list(str("1234567890"))
+punct=list(str(",./\#;:@'[]{}()-_=+*&^%$£<>?~`¬|""!,,,,,,,,,,,,,,,,,,,,,,,,,, "))
+    
+def caeser():    
+    
+    def caeserEN(words, shift):
+        output=[]
+        for p in range(0, len(words)):
+            en = list(str(words[p]))
+            for n in range(0, len(en)):
+                for i in range(0, 62):
+                    if en[n] == alphabet[i]:
+                        output.append(alphabet[i+int(shift)])
+                    else:
+                        continue
+            output.append(" ")
+
+        encryption="".join(output)
+        print encryption
+
+    def caeserDE(words, shift):
+        output=[]
+        for p in range(0, len(words)):
+            en = list(str(words[p]))
+            for n in range(0, len(en)):
+                for i in range(0, 62):
+                    if en[n] == alphabet[i]:
+                        output.append(alphabet[i-int(shift)])
+                    else:
+                        continue
+            output.append(" ")
+
+        encryption="".join(output)
+        print encryption
+    
+    def guessCaeser(words):
+    
+        shift=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25]
+        output2=[]
+        dic=enchant.Dict("en_US")
+    
+        for b in range(0,len(shift)):
+            output=[]
+            for p in range(0, len(words)):
+                en = list(str(words[p]))
+                for n in range(0, len(en)):
+                    for i in range(0, 63):
+                        if en[n] == alphabet[i-1]:
+                            output.append(alphabet[i-shift[b]])
+                        else:
+                            continue
+                output.append(" ")
+            output2.append(''.join(output))
+        
+        print "Possibilities: "
+
+        for p in range(0, len(output2)):
+            checkem=str(output2[p])
+            checkem=list(checkem.split())
+            count=0
+            for i in range(0, len(checkem)):
+                check=False
+                check=dic.check(checkem[i])
+                if count >= len(checkem)/2:
+                    print ' '.join(checkem)
+                    break
+                elif check==True:
+                    count+=1
+                else:
+                    continue
+            
+    def menuCaeser():
+    
+        print '\033[1m'+'\033[92m'+"Caeser Encryption + Guessing"+'\033[0m'
+        print "1. Encrypt\n2. Decrypt\n3. Guess\n4. Exit"
+        opt=raw_input("Select Option: ")
+        if opt == "1":
+            words=raw_input("Enter string: ").split()
+            shift=raw_input("Enter shift amount: ")
+            caeserEN(words, shift)
+        elif opt == "2":
+            words=raw_input("Enter string: ").split()
+            shift=raw_input("Enter shift amount: ")
+            caeserDE(words, shift)
+        elif opt == "3":
+            words=raw_input("Enter String: ").split()
+            guessCaeser(words)
+        elif opt == "4":
+            menu()
+        else:
+            print "Please try again."
+            menuCaeser()
+
+    menuCaeser()
+
+   
+def DES():
+
+    def encryptDES(key, words):
+
+        #Encrypting messages
+        k = des(key, CBC, "\0\0\0\0\0\0\0\0", pad=None, padmode=PAD_PKCS5)
+        c = k.encrypt(words)
+        print "Encrypted: %r" % c
+
+    def decryptDES(key, words):
+
+        #Decrypting messages
+        k = des(key, CBC, "\0\0\0\0\0\0\0\0", pad=None, padmode=PAD_PKCS5)
+        print "Decrypted: %r" % k.decrypt(words)
+
+    def forceDES(words, x):
+
+        #start itertools product loop
+
+        for c in product(numbers, repeat=7):
+
+            #Tons o' variables!
+
+            key=list(c)
+            key.insert(0, x)
+            key=(''.join(key))
+            #print key
+            k = des(key, CBC, "\0\0\0\0\0\0\0\0", pad=None, padmode=PAD_PKCS5)
+            d="%r"%k.decrypt(words)
+            d=eval(d)
+            l=list(str(d))
+            count=0
+            check=""
+            done=False
+
+            #loops, inside loops, inside if statments (To check decryption for possiblities) 
+
+            for i in range(0, len(l)):
+                for a in range(0,62):
+                    if l[i]==alphabet[a]:
+                        count+=1
+                    elif count>=5 and done == False:
+                        check=(''.join(l))
+                        checker=list(str(check))
+                        counter=0
+                        for q in range (0,len(checker)):
+                            if checker[q] in alphabet:
+                                counter+=1
+                                if counter >= len(checker):
+                                     print "Deciphered: "+check+"\t\tKey: "+key
+                                     done=True
+                                     break
+                                else:
+                                    continue
+                            elif checker[q] in punct:
+                                counter+=1
+                                if counter >= len(checker):
+                                     print "Deciphered: "+check+"\t\tKey: "+key
+                                     done=True
+                                     break
+                                else:
+                                    continue
+                            else:
+                                continue
+                    else:
+                        continue
+
+    def multiP(words):
+
+        #multiprocessing, does 3x at once
+        x=0
+        s=3
+        jobs=[]
+        t1 = time.time()
+
+        for p in range (0, len(numbers)):
+            if s > 10:
+                break
+            for a in range(x, s):
+                x = numbers[a]
+                p=multiprocessing.Process(target=forceDES, args=(words, x,))
+                jobs.append(p)
+                p.start()
+            p.join()
+            x=+3
+            s=+3
+
+        t2 = time.time()
+        times=t2-t1
+        print times
+
+    def menuDES():
+
+        print '\033[1m'+'\033[92m'+"DES Encryption + Brute Force"+'\033[0m'
+        print "1. Encrypt\n2. Decrypt\n3. BruteForce\n4. Exit"
+        opt=raw_input("Select Option: ")
+        if opt=="1":
+            #start encrypting
+            words=raw_input("Enter string: ")
+            key=raw_input("Enter 8 byte key: ")
+            encryptDES(key, words)
+        elif opt=="2":
+            #start decrypting
+            words=raw_input("Enter string: ")
+            words=eval(words)
+            key=raw_input("Enter 8 byte key: ")
+            decryptDES(key, words)
+        elif opt=="3":
+            #brute force that s***
+            words=raw_input("Enter string: ")
+            words=eval(words)
+            multiP(words)
+        elif opt=="4":
+            menu()
+        else:
+            print "Please try again."
+            menuDES()
+
+    menuDES()
+
+
+def poly():
+
+    def createKeysPoly(words, key):
+        keys=[]
+        for k in range(0, len(key)):
+            for i in range(1, 63):
+                if key[k]==alphabet[i-1]:
+                    keys.append(i)
+                else:
+                    continue
+        return list(keys)
+
+    def encryptPoly(words, keys):
+        count=0
+        output=[]
+        encryption=""
+        for p in range(0, len(words)):
+            en = list(str(words[p]))
+            for n in range(0, len(en)):
+                for i in range(0, 62):
+                    if en[n] == alphabet[i]:
+                        output.append(alphabet[i+keys[count]])
+                        count+=1
+                        if count>=len(keys):
+                            count=0
+                    elif en[n] == punct[i]:
+                        output.append(punct[i])
+                        break
+                    else:
+                        continue
+            output.append(" ")
+        encryption="".join(output)
+        print encryption
+
+    def decryptPoly(words, keys):
+        count=0
+        output=[]
+        encryption=""
+        for p in range(0, len(words)):
+            en = list(str(words[p]))
+            for n in range(0, len(en)):
+                for i in range(0, 62):
+                    if en[n] == alphabet[i]:
+                        output.append(alphabet[i-keys[0+count]])
+                        count+=1
+                        if count>=len(keys):
+                            count=0
+                    elif en[n] == punct[i]:
+                        output.append(punct[i])
+                        break
+                    else:
+                        continue
+            output.append(" ")
+        encryption="".join(output)
+        print encryption
+
+    def menuPoly():
+        output=[]
+        print '\033[1m'+'\033[92m'+"Polyalphabetic Encryption"+'\033[0m'
+        print "1. Encrypt\n2. Decrypt\n3. Exit"
+        opt = raw_input("Select option: ")
+        if opt == "1":
+            words=raw_input("Enter string: ").split()
+            key=list(str(raw_input("Passcode: ")))
+            keys=createKeysPoly(words, key)
+            encryptPoly(words, keys)
+        elif opt == "2":
+            words=raw_input("Enter string: ").split()
+            key=list(str(raw_input("Passcode: ")))
+            keys=createKeysPoly(words, key)
+            decryptPoly(words, keys)
+        elif opt == "3":
+            menu()
+        else:
+            print "Please try again!"
+            menuPoly()
+
+    menuPoly()
+
+    
+def return_():
+    option=raw_input('\033[1m'+'\033[92m'+"Would you like to return to the menu [y/n]? ")
+    print '\033[0m'
+    if option == "y":
+        menu()
+    else:
+        raise SystemExit
+    
+def menu():
+    os.system("clear")
+    print '\033[1m'+'\033[92m'+"Project 3 - Hash Dealers"+'\033[0m'
+    print "1. Caeser Cipher\n2. Polyalphabetic Cipher\n3. DES (Data Encryption Standard)\n4. RSA (Rivest, Shamir, Adleman)\n5. Exit"
+    wat=raw_input("Select Option: ")
+    if wat == "1":
+        caeser()
+        return_()
+    elif wat == "2":
+        poly()
+        return_()
+    elif wat == "3":
+        DES()
+        return_()
+    elif wat == "4":
+        RSA()
+        return_()
+    elif wat == "5":
+        raise SystemExit 
+    else:
+        print "Please try again."
+        menu()
+
+menu()
