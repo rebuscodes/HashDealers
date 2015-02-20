@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from pyDes import *
-from itertools import combinations_with_replacement
+from itertools import product
 import multiprocessing
 import time
 
@@ -26,7 +26,7 @@ def force(words, x):
 
     #start itertools combination loop
 
-    for c in combinations_with_replacement(numbers, 7):
+    for c in product(numbers, repeat=7):
 
         #Tons o' variables!
 
@@ -74,23 +74,23 @@ def force(words, x):
                     continue
 
 def multiP(words):
-
+    
+    x=0
+    s=3
     jobs=[]
     t1 = time.time()
 
-    for a in range(0, 5):
-        x = numbers[a]
-        p=multiprocessing.Process(target=force, args=(words, x,))
-        jobs.append(p)
-        p.start()
-    p.join()
-
-    for b in range(5, 10):
-        x = numbers[b]
-        p=multiprocessing.Process(target=force, args=(words, x,))
-        jobs.append(p)
-        p.start()
-    p.join()
+    for p in range (0, len(numbers)):
+        if s > 10:
+            break
+        for a in range(x, s):
+            x = numbers[a]
+            p=multiprocessing.Process(target=force, args=(words, x,))
+            jobs.append(p)
+            p.start()
+        p.join()
+        x=+3
+        s=+3
 
     t2 = time.time()
     times=t2-t1
@@ -112,11 +112,13 @@ def menu():
         key=raw_input("Enter 8 byte key: ")
         decrypt(key, words)
     elif opt=="3":
-        #brute force
+        #brute force that s***
         words=eval(words)
         multiP(words)
 
 menu()
+
+
 
 
 
