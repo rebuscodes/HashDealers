@@ -5,6 +5,7 @@ from itertools import product
 import multiprocessing
 import time
 import enchant
+import sys
 
 alphabet = list(str("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"))
 numbers=list(str("1234567890"))
@@ -139,7 +140,7 @@ def DES():
             done=False
 
             #loops, inside loops, inside if statments (To check decryption for possiblities) 
-
+            print d
             for i in range(0, len(l)):
                 for a in range(0,62):
                     if l[i]==alphabet[a]:
@@ -303,7 +304,129 @@ def poly():
 
     menuPoly()
 
-    
+def RSA():
+
+    P=108887	
+    Q=183587	
+    E=10001	    
+
+    def someonesCode(P, Q, E):
+        def isPrime(x):
+                if x%2==0 and x>2: return False     # False for all even numbers
+                i=3                                 # we don't divide by 1 or 2
+                sqrt=x**.5                          
+                while i<sqrt:
+                        if x%i==0: return False
+                        i+=2
+                return True
+
+        # Part of find_inverse below
+
+        def eea(a,b):
+                if b==0:return (1,0)
+                (q,r) = (a//b,a%b)
+                (s,t) = eea(b,r)
+                return (t, s-(q*t) )
+
+        # Find the multiplicative inverse of x (mod y)
+
+        def find_inverse(x,y):
+                inv = eea(x,y)[0]
+                if inv < 1: inv += y #we only want positive values
+                return inv
+
+        if not isPrime(P): raise Exception("P (%i) is not prime" % (P,))
+        if not isPrime(Q): raise Exception("Q (%i) is not prime" % (Q,))
+
+        T=(P-1)*(Q-1) # Euler's totient
+        # Assuming E is prime, we just have to check against T
+
+        if E<1 or E > T: raise Exception("E must be > 1 and < T")
+        if T%E==0: raise Exception("E is not coprime with T")
+
+        # Product of P and Q is our modulus; the part determines as the "key size".
+        MOD=P*Q
+
+        # Private exponent is inverse of public exponent with respect to (mod T)
+        D = find_inverse(E,T)
+
+        return MOD, D
+
+    MOD, D = someonesCode(P, Q, E)
+
+    #print "public key: (MOD: %i, E: %i)" % (MOD,E)
+    #print "private key: (MOD: %i, D: %i)" % (MOD,D)
+
+    def encryptRSA(key, MOD):
+        #Encrpyt	
+        words=raw_input("Enter String: ")
+        output=[]
+
+        for p in range(0, len(words)):
+                en = list(str(words[p]))
+                for n in range(0, len(en)):
+                    for i in range(0, 62):
+                        if en[n] == alphabet[i]:
+                            if i < 10:
+                                output.append("0"+str(i))
+                            else:
+                                output.append(i)
+                        else:
+                            continue
+
+        for i in range (0, len(output)):
+                output[i]=str(output[i])
+
+        output1=int(''.join(output))
+        if output1 > MOD:
+                print "Cannot do a string that long, try again."
+                menuRSA(MOD, E, D)
+        else:
+                after = pow(output1,key,MOD)
+                print "Encrypted: "+str(after)
+
+    def decryptRSA(key, MOD):
+        #decrypt
+        words=raw_input("Enter String: ")
+        output=[]
+        after = pow(int(words),key,MOD)
+        #print after
+        if len(str(after)) % 2 == 0:
+                after=map(''.join, zip(*[iter(str(after))]*2))
+        else:
+                after='0'+str(after)
+                after=map(''.join, zip(*[iter(after)]*2))
+
+        for a in range(0, len(after)):
+                x=int(after[a])
+                output.append(alphabet[x])
+
+        print "Decrypted: "+''.join(output)
+
+    def menuRSA(MOD, E, D):
+        
+        print MOD
+        print '\033[1m'+'\033[92m'+"RSA Encryption"+'\033[0m'
+        print "1. Encrypt\n2. Decrypt\n3. Generate Keys\n4. Exit"
+        opt=raw_input("Select Option: ")
+        if opt == "1":
+            key=E
+            encryptRSA(key, MOD)
+        elif opt == "2":
+            key=D
+            decryptRSA(key, MOD)
+        elif opt == "4":
+            raise SystemExit
+        elif opt == "3":
+            print "This does nothing at the moment..."
+            menuRSA(MOD, E, D)
+    #NewKeys()
+        else:
+            menuRSA(MOD, E, D)
+
+    menuRSA(MOD, E, D)
+
+
 def return_():
     option=raw_input('\033[1m'+'\033[92m'+"Would you like to return to the menu [y/n]? ")
     print '\033[0m'
