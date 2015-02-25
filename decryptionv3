@@ -1,0 +1,11 @@
+string = raw_input("Enter text to be decrypted:")
+s= list(string.lower())
+alpha=('abcdefghijklmnopqrstuvwxyz')
+for key in range(1,26):
+    for letter in range(len(s)):
+        if ord(s[letter]) > 96 and ord(s[letter]) < 123:
+            s[letter] = alpha[(ord(s[letter]) - 97 - key) % 26]
+    print "Suggestion number ", key+1,":"
+    print ''.join(s)
+    print "key:", key
+    print "\n"
