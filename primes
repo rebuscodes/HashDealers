@@ -1,0 +1,22 @@
+limit = 20000000
+x = 2
+primes = [x]
+count = 0
+prim=open("primes.txt", "w")
+
+while count < limit:
+    x+=1
+
+    if x%2==0 and x>2: 
+        continue
+
+    i=3                                 
+    sqrt=x**.5     
+                     
+    while i<sqrt:
+        if x%i==0: 
+            break
+        i+=2
+    print x
+    count+=1
+    prim.write(str(x)+"\n")
