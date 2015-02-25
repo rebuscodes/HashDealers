@@ -1,0 +1,58 @@
+#include <iostream>
+#include <string.h>
+#include <cstdio>
+using namespace std;
+string text; char key,repeat;
+string xorencryption(string t, char k)
+{
+    string output = t;
+    for(int i=0;i<t.size();i++)
+    {
+        output[i] = t[i] ^ k;
+    }
+    return output;
+}
+string xordecryption(string t1, char k1)
+{
+    string output1 = t1;
+    for(int i=0;i<t1.size();i++)
+    {
+        output1[i] = t1[i] ^ k1;
+    }
+    return output1;
+}
+void choice(int answer)
+{
+    if(answer==1)
+    {
+        cout<<"Enter the key you want to use:";
+        cin>>key;
+        cout<<xorencryption(text,key)<<endl;
+    }
+    else if(answer==2)
+    {
+        cout<<"Enter the key that has been used to encrypt the text:";
+        cin>>key;
+        cout<<xordecryption(text,key)<<endl;
+    }
+    else if(answer==3)
+    {
+        cout<<"Bye bye!";
+    }
+    else
+    {
+        cout<<"Please input a valid choice:";
+        cin>>answer;
+    }
+}
+int main()
+{
+    cout<<"Enter the text you want encrypted/decrypted:";
+    getline(cin,text);
+    int option;
+    cout<<"Press 1 for encryption, 2 for decryption or 3 to exit:";
+    cin>>option;
+    choice(option);
+    getchar();
+    return 0;
+}
