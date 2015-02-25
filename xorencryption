@@ -1,0 +1,33 @@
+def xorencryption(t, k):
+    output = []
+    for i in range(len(t)):
+        output.append(chr(ord(t[i]) ^ ord(k)))
+    print ''.join(output)
+def xordecryption(t, k):
+    output = []
+    for i in range(len(t)):
+        output.append(chr(ord(t[i]) ^ ord(k)))
+    print ''.join(output)
+def menu():
+    print "\nXOR encryption/decryption tool"
+    text = raw_input("Enter string:")
+    key = raw_input("Enter one letter key here:")
+    print "1. Encrypt\n2. Decrypt\n3. Exit"
+    opt = input("Enter your choice:")
+    while opt != 3: 
+        if opt == 1:
+            xorencryption(text, key)
+            opt = input("\n1. Encrypt\n2. Decrypt\n3. Exit\nEnter your choice:")
+        elif opt == 2:
+            xordecryption(text,key)
+            opt = input("\n1. Encrypt\n2. Decrypt\n3. Exit\nEnter your choice:")
+        elif opt == 3:
+            print "Bye bye"
+        else:
+            opt = input("Please choose a valid input:")
+
+menu()
+answer = raw_input("\nWould you like to try it with another string? y \ n:")
+while answer != 'n':
+    menu()
+    answer = raw_input("\nWould you like to try it with another string? y \ n:")
